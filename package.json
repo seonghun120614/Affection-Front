@@ -1,5 +1,6 @@
 {
-  "name": "affection-monorepo",
+  "name": "affection-front",
   "private": true,
+  "packageManager": "pnpm@11.20.0",
   "workspaces": ["apps/*", "packages/*"]
 }
