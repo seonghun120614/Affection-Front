@@ -1,6 +1,22 @@
 {
-  "name": "affection-front",
-  "private": true,
-  "packageManager": "pnpm@11.20.0",
-  "workspaces": ["apps/*", "packages/*"]
+    "name": "affection-front",
+    "private": true,
+    "packageManager": "pnpm@11.20.0",
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+    },
+    "dependencies": {
+        "@affection/api": "workspace:*",
+        "@affection/auth": "workspace:*",
+        "@affection/hooks": "workspace:*",
+        "@affection/ui": "workspace:*",
+        "@tanstack/react-query": "^5.101.4"
+    },
+    "devDependencies": {
+        "prettier": "^3.9.6"
+    }
 }

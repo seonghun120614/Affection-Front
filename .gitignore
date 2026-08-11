@@ -75,4 +75,4 @@ next-env.d.ts
 node_modules
 .next
 .env*.local
-dist
+distls -la
