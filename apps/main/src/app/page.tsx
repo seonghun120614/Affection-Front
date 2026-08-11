@@ -1,6 +1,5 @@
-import Header from "../pages/header";
-import Footer from "./footer";
-import { features, steps } from "./constants";
+// import Header from "../pages/header";
+// import Footer from "./footer";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -8,7 +7,7 @@ export default function HomePage() {
         <div className="flex flex-col min-h-screen">
             {/* 헤더 */}
             <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/85 backdrop-blur-md">
-                <Header />
+                {/* <Header /> */}
             </header>
 
             {/* 메인 컨텐츠 영역 */}
@@ -45,7 +44,7 @@ export default function HomePage() {
                             '정'이 오가는 서비스
                         </h2>
                         <div className="mt-14 grid gap-8 sm:grid-cols-3">
-                            {features.map((f) => (
+                            {/* {features.map((f) => (
                                 <article key={f.title}>
                                     <h3 className="text-lg font-semibold text-zinc-900">
                                         {f.title}
@@ -54,7 +53,7 @@ export default function HomePage() {
                                         {f.body}
                                     </p>
                                 </article>
-                            ))}
+                            ))} */}
                         </div>
                     </div>
                 </section>
@@ -66,7 +65,7 @@ export default function HomePage() {
                             시작은 3분이면 충분합니다
                         </h2>
                         <ol className="mt-14 grid gap-8 sm:grid-cols-3">
-                            {steps.map((s, i) => (
+                            {/* {steps.map((s, i) => (
                                 <li key={s.title}>
                                     <span className="text-sm font-medium text-indigo-600 tabular-nums">
                                         {String(i + 1).padStart(2, "0")}
@@ -78,7 +77,7 @@ export default function HomePage() {
                                         {s.body}
                                     </p>
                                 </li>
-                            ))}
+                            ))} */}
                         </ol>
                     </div>
                 </section>
@@ -104,7 +103,7 @@ export default function HomePage() {
 
             {/* 푸터 */}
             <footer className="border-t border-zinc-200 px-6 py-12">
-                <Footer />
+                {/* <Footer /> */}
             </footer>
         </div>
     );

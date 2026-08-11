@@ -23,6 +23,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.101.4
         version: 5.101.4(react@19.2.4)
+      next:
+        specifier: ^16.2.12
+        version: 16.2.12(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
       prettier:
         specifier: ^3.9.6

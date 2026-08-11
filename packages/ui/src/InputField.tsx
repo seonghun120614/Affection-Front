@@ -1,10 +1,10 @@
 import React, { InputHTMLAttributes, ReactNode } from "react";
 
-// 기본 input 태그의 모든 속성(type, value, onChange 등)을 상속받습니다.
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     label: string;
-    error?: string; // 에러 메시지 렌더링용
-    rightElement?: ReactNode; // 우측에 들어갈 요소 (중복 확인 버튼 등)
+    error?: string;
+    rightElement?: ReactNode;
+    containerClassName?: string;
 }
 
 export function InputField({
@@ -13,37 +13,50 @@ export function InputField({
     rightElement,
     id,
     className,
+    containerClassName = "",
     ...props
 }: InputFieldProps) {
-    // 고유 ID가 주어지지 않으면 label 텍스트를 임시 ID로 사용하여 접근성을 유지합니다.
     const inputId = id || label;
 
+    // Button 컴포넌트처럼 상태별 스타일(variants)을 객체로 분리하여 관리
+    const inputVariants = {
+        default: "border-[var(--color-border-subtle)] hover:border-[var(--color-golden-honey)] focus:border-[var(--color-mustard-gold)] focus:bg-white focus:ring-4 focus:ring-[var(--color-mustard-gold)]/15",
+        error: "border-red-400 focus:border-red-400 focus:ring-4 focus:ring-red-500/10",
+    };
+
+    const currentVariant = error ? inputVariants.error : inputVariants.default;
+
     return (
-        <div className="flex w-full flex-col gap-1.5">
+        <div className={`flex w-full flex-col gap-1.5 text-left animate-expand ${containerClassName}`}>
+            {/* 레이블 */}
             <label
                 htmlFor={inputId}
-                className="text-sm font-medium text-stone-700"
+                className="text-xs font-semibold tracking-wide text-[var(--color-text-muted)] transition-colors"
             >
                 {label}
             </label>
 
-            <div className="flex gap-2">
+            {/* 인풋 및 우측 요소 래퍼 */}
+            <div className="relative flex items-center gap-2">
                 <input
                     id={inputId}
-                    className={`
-            w-full rounded-lg border bg-white px-3 py-2.5 text-stone-900 outline-none transition-colors
-            border-amber-600/40 focus:border-amber-700 focus:ring-2 focus:ring-amber-700/20
-            disabled:cursor-not-allowed disabled:bg-stone-50 disabled:text-stone-400
-            ${error ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""}
-            ${className}
-          `}
-                    {...props} // 명시하지 않은 나머지 모든 속성(placeholder, value 등)을 주입합니다.
+                    className={`w-full rounded-xl border bg-stone-50/40 px-4 py-3 text-sm text-[var(--color-text-main)] placeholder:text-stone-400 outline-none transition-all duration-300 ease-in-out ${currentVariant} ${className || ""}`}
+                    {...props}
                 />
-                {/* 우측 슬롯에 주입된 컴포넌트가 있다면 렌더링합니다. */}
-                {rightElement && <div className="shrink-0">{rightElement}</div>}
+
+                {rightElement && (
+                    <div className="shrink-0 flex items-center h-full">
+                        {rightElement}
+                    </div>
+                )}
             </div>
 
-            {error && <p className="text-xs text-red-600">{error}</p>}
+            {/* 에러 메시지 */}
+            {error && (
+                <p className="text-xs font-medium text-red-600 animate-fadeIn transition-all duration-200">
+                    {error}
+                </p>
+            )}
         </div>
     );
 }
