@@ -2,29 +2,31 @@
 
 import { useState } from "react";
 import { Button, Input } from "@affection/ui";
-import { useSendMail } from "@/features/mail/model/use-send-mail";
-import { useVerifyMail } from "@/features/auth/model/use-verify-mail";
+import { useSendSms } from "@/features/sms/model/use-send-sms";
+import { useVerifySms } from "@/features/auth/model/use-verify-sms";
 
-interface EmailVerificationFormProps {
-    username: string;
-    onSuccess: (verifiedEmail: string, verifiedUid: string) => void;
+interface VerifySmsFormProps {
+    uid: string;
+    onSuccess: (data: string) => void;
 }
 
-export function VerifyMailForm({ username, onSuccess }: EmailVerificationFormProps) {
-    const [email, setEmail] = useState("");
+export function VerifySmsForm({ uid, onSuccess }: VerifySmsFormProps) {
+    const [phoneNumber, setPhoneNumber] = useState("");
     const [authCode, setAuthCode] = useState("");
     const [isCodeSent, setIsCodeSent] = useState(false);
 
-    const { mutate: sendMail, isPending: isSending, isError: isSendError } = useSendMail();
+    const { mutate: sendSms, isPending: isSending, isError: isSendError } = useSendSms();
     const {
-        mutate: verifyMail,
+        mutate: verifySms,
         isPending: isVerifying,
         isError: isVerifyError,
         isSuccess: isVerified,
         data: resultMessage,
-    } = useVerifyMail();
+    } = useVerifySms();
 
-    const isValidEmail = email.includes("@") && email.includes(".");
+    // 하이픈(-) 제거 및 백엔드 정규식 규격(^01[016789]\d{7,8}$) 검증
+    const cleanPhoneNumber = phoneNumber.replace(/-/g, "");
+    const isValidPhoneNumber = /^01[016789]\d{7,8}$/.test(cleanPhoneNumber);
 
     const getSendButtonStatus = () => {
         if (isVerified) return "disabled";
@@ -41,11 +43,12 @@ export function VerifyMailForm({ username, onSuccess }: EmailVerificationFormPro
         return "default";
     };
 
+    // 1. SendSmsRequest 타입({ phoneNumber })에 맞춰 발송
     const handleSendCode = () => {
-        if (!isValidEmail || isSending || !username) return;
+        if (!isValidPhoneNumber || isSending) return;
 
-        sendMail(
-            { username, email },
+        sendSms(
+            { uid, phoneNumber: cleanPhoneNumber },
             {
                 onSuccess: () => {
                     setIsCodeSent(true);
@@ -54,35 +57,36 @@ export function VerifyMailForm({ username, onSuccess }: EmailVerificationFormPro
         );
     };
 
+    // 2. VerifyNumberRequest 타입({ uid, phoneNumber, authCode })에 맞춰 검증
     const handleVerifyCode = () => {
-        if (!authCode || isVerifying || isVerified || !username) return;
+        if (authCode.length !== 6 || isVerifying || isVerified) return;
 
-        verifyMail(
-            { username, email, authCode },
+        verifySms(
+            { uid, phoneNumber: cleanPhoneNumber, authCode },
             {
-                onSuccess: (verifiedUid) => {
+                onSuccess: (verifiedUid: string) => {
                     if (verifiedUid) {
-                        onSuccess(email, verifiedUid);
+                        onSuccess(cleanPhoneNumber);
                     }
-                },
+                }
             }
         );
     };
 
     return (
-        <div className="flex flex-col gap-3 w-full">
-            {/* 이메일 입력 및 요청 영역 */}
-            <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-xs font-medium text-stone-700">이메일</label>
+        <div className="flex flex-col gap-4 w-full">
+            {/* 휴대폰 번호 발송 영역 */}
+            <div className="flex flex-col gap-2 w-full">
+                <label className="text-sm font-medium">휴대폰 번호</label>
                 <div className="w-full flex flex-row items-center gap-2 h-10">
                     <div className="flex-1">
                         <Input
-                            type="email"
-                            value={email}
+                            type="tel"
+                            value={phoneNumber}
                             disabled={isVerified}
                             status={isSendError ? "error" : isVerified ? "disabled" : "default"}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="example@affection.com"
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            placeholder="01012345678"
                         />
                     </div>
                     <div className="flex-none h-full">
@@ -90,19 +94,19 @@ export function VerifyMailForm({ username, onSuccess }: EmailVerificationFormPro
                             status={getSendButtonStatus()}
                             onClick={handleSendCode}
                             cooldownTime={60}
-                            disabled={!isValidEmail || isVerified || !username}
+                            disabled={!isValidPhoneNumber || isVerified}
                             onCooldownEnd={() => setIsCodeSent(false)}
                         >
-                            {isCodeSent ? "재발송" : "요청"}
+                            {isCodeSent ? "재발송" : "인증요청"}
                         </Button>
                     </div>
                 </div>
             </div>
 
-            {/* 인증번호 입력 영역 (global.css 공통 클래스 적용) */}
-            <div className={`smooth-reveal ${isCodeSent ? "is-open" : ""}`}>
-                <div className="smooth-reveal-inner flex flex-col gap-1.5 pt-1">
-                    <label className="text-xs font-medium text-stone-700">인증번호</label>
+            {/* 인증번호 입력 영역 */}
+            {isCodeSent && (
+                <div className="flex flex-col gap-2 w-full">
+                    <label className="text-sm font-medium">인증번호</label>
                     <div className="w-full flex flex-row items-center gap-2 h-10">
                         <div className="flex-1">
                             <Input
@@ -111,26 +115,28 @@ export function VerifyMailForm({ username, onSuccess }: EmailVerificationFormPro
                                 disabled={isVerified}
                                 status={isVerifyError ? "error" : isVerified ? "disabled" : "default"}
                                 onChange={(e) => setAuthCode(e.target.value)}
-                                placeholder="인증번호 입력"
+                                placeholder="인증번호 6자리"
+                                maxLength={6}
                             />
                         </div>
                         <div className="flex-none h-full">
                             <Button
                                 status={getVerifyButtonStatus()}
                                 onClick={handleVerifyCode}
-                                disabled={!authCode || isVerified}
+                                disabled={authCode.length !== 6 || isVerified}
                             >
                                 {isVerified ? "완료" : "확인"}
                             </Button>
                         </div>
                     </div>
+
                     {isVerifyError && (
-                        <p className="text-xs font-medium text-red-500 mt-0.5">
+                        <p className="text-xs text-red-500 font-medium">
                             인증번호가 일치하지 않거나 만료되었습니다.
                         </p>
                     )}
                 </div>
-            </div>
+            )}
         </div>
     );
 }

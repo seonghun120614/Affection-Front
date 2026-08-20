@@ -1,92 +1,119 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useLogout } from "@/features";
 
-const menuItemCls =
-    "rounded-lg px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none";
+export interface HeaderNavProps {
+    username?: string | null;
+    openBorrowModal?: () => void;
+    openFindingModal?: () => void;
+}
 
-/**
- * 헤더 오른쪽 nav. 로그인 여부에 따라 메뉴 ↔ 로그인/회원가입 을 전환한다.
- *
- * 로그인 상태는 login-form이 sessionStorage에 넣어둔 username으로 판단한다.
- * (JWT는 HttpOnly 쿠키라 프론트에서 읽을 수 없다)
- */
-export function HeaderNav() {
-    const pathname = usePathname();
+// 웹 전용 공통 메뉴 버튼 스타일 (상수 명명 규칙 적용)
+const MENU_ITEM_CLS =
+    "rounded-xl px-3.5 py-2 text-sm font-medium text-stone-600 transition-all hover:bg-stone-100 hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-stone-300 focus-visible:outline-none";
+
+function HeaderNav({
+    username,
+    openBorrowModal,
+    openFindingModal,
+}: HeaderNavProps) {
     const router = useRouter();
-    const [username, setUsername] = useState<string | null>(null);
-    const { openFindingModal, openBorrowModal } = useModal();
+    const { mutate: logout } = useLogout();
 
-    const handleLogout = async () => {
-        await auth.logout();
-        setUsername(null); // 헤더는 라우트가 안 바뀌면 sessionStorage를 다시 안 읽으므로 직접 갱신
-        router.push("/");
+    const handleLogout = () => {
+        // useLogout 훅을 통한 백엔드 세션/토큰 정리 후 클라이언트 스토리지 비우기
+        logout(undefined, {
+            onSuccess: () => {
+                localStorage.removeItem("username");
+                localStorage.removeItem("accessToken");
+                router.push("/");
+                router.refresh();
+            },
+            onError: () => {
+                localStorage.removeItem("username");
+                localStorage.removeItem("accessToken");
+                router.push("/");
+                router.refresh();
+            },
+        });
     };
 
-    // sessionStorage는 서버에 없으므로 마운트 후에 읽는다 (hydration mismatch 방지).
-    // 헤더는 layout에 있어 페이지 이동 시 리마운트되지 않으므로,
-    // 로그인 직후 /rooms 로 이동할 때 pathname 변화를 계기로 다시 읽는다.
+    return (
+        <nav className="flex items-center gap-2 sm:gap-3">
+            {username ? (
+                /* 로그인 후: 모달 버튼 및 유저 프로필/로그아웃 */
+                <>
+                    <button onClick={openBorrowModal} className={MENU_ITEM_CLS}>
+                        물품 대여하기
+                    </button>
+                    <button onClick={openFindingModal} className={MENU_ITEM_CLS}>
+                        주인 찾기
+                    </button>
+                    
+                    <div className="mx-1 h-4 w-[1px] bg-stone-200" />
+
+                    <span className="px-1 text-sm font-semibold text-stone-900">
+                        <span className="text-autumn-rust">{username}</span> 님
+                    </span>
+
+                    <button
+                        onClick={handleLogout}
+                        className="rounded-xl border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-900"
+                    >
+                        로그아웃
+                    </button>
+                </>
+            ) : (
+                /* 로그인 전: 로그인 / 회원가입 버튼 */
+                <>
+                    <Link href="/login" className={MENU_ITEM_CLS}>
+                        로그인
+                    </Link>
+                    <Link
+                        href="/signup"
+                        className="rounded-xl bg-autumn-rust px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-autumn-rust/90 active:scale-[0.98]"
+                    >
+                        시작하기
+                    </Link>
+                </>
+            )}
+        </nav>
+    );
+}
+
+export function Header() {
+    const pathname = usePathname();
+    const [username, setUsername] = useState<string | null>(null);
+
+    const isAuthPage = pathname === "/signup" || pathname === "/login";
+
     useEffect(() => {
-        setUsername(sessionStorage.getItem("username"));
+        // localStorage에서 저장된 username을 가져옴
+        const storedUser = localStorage.getItem("username");
+        setUsername(storedUser);
     }, [pathname]);
 
-    if (username) {
-        return (
-            <nav className="flex items-center gap-2">
-                {/* 채팅/그룹채팅은 지도 화면으로. 어떤 패널을 열지는 나중에 지도 쪽에서 처리 */}
-                <Link href="/rooms" className={menuItemCls}>
-                    채팅
-                </Link>
-                <button
-                    type="button"
-                    onClick={openBorrowModal}
-                    className={menuItemCls}
-                >
-                    빌려주세요
-                </button>
-                <button
-                    type="button"
-                    onClick={openFindingModal}
-                    className={menuItemCls}
-                >
-                    찾아주세요
-                </button>
-                <Link href="/rooms" className={menuItemCls}>
-                    그룹채팅
-                </Link>
-                <Link
-                    href="/settings"
-                    className="rounded-lg px-4 py-2 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-50 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                >
-                    {username}
-                </Link>
-                <button
-                    type="button"
-                    onClick={handleLogout}
-                    className={menuItemCls}
-                >
-                    로그아웃
-                </button>
-            </nav>
-        );
-    }
-
     return (
-        <nav className="flex items-center gap-2">
-            <Link
-                href="/login"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-            >
-                로그인
-            </Link>
-            <Link
-                href="/signup"
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:outline-none"
-            >
-                회원가입
-            </Link>
-        </nav>
+        <header className="sticky top-0 z-50 border-b border-stone-200 bg-white/80 backdrop-blur-md">
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+                <Link
+                    href="/"
+                    className="text-xl font-bold tracking-tight text-stone-900 transition hover:opacity-80"
+                >
+                    Affection<span className="text-autumn-rust">.</span>
+                </Link>
+
+                {!isAuthPage && (
+                    <HeaderNav
+                        username={username}
+                        openBorrowModal={() => console.log("대여 모달")}
+                        openFindingModal={() => console.log("찾기 모달")}
+                    />
+                )}
+            </div>
+        </header>
     );
 }

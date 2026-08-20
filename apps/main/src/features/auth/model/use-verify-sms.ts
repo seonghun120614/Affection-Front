@@ -5,7 +5,7 @@ import { VerifySmsRequest } from "@/entities/sms-props";
 export const useVerifySms = () => {
     return useMutation({
         mutationFn: async (body: VerifySmsRequest): Promise<string> =>
-            api.post<string>(`/api/auth/veify/sms`, body),
+            api.postText(`/api/auth/number`, body),
         onError: (error) => {
             console.error("인증 실패:", error);
         },

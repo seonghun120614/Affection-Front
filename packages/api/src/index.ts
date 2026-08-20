@@ -112,11 +112,10 @@ export const api = {
     /**
      * 특수한 경우에만 사용, 반환이 string 이거나 아니면 null 임
      */
-    postText: async (path: string, body?: unknown): Promise<string | null> => {
+    postText: async (path: string, body?: unknown): Promise<string> => {
         const res = await request(path, { method: "POST", body: json(body) });
-        if (res.status === 204) return null;
         const text = (await res.text()).trim();
-        return text.length > 0 ? text : null;
+        return text;
     },
 
     // 기본적으로 204 가 반환 안된다는 가정

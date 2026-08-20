@@ -12,9 +12,13 @@ export const useLogin = () => {
             api.post<LoginResponse>(`/api/auth/login`, body),
 
         onSuccess: (data) => {
-            sessionStorage.setItem("username", data.username);
+            // sessionStorage 대신 localStorage 사용
+            localStorage.setItem("username", data.username);
+            
             queryClient.invalidateQueries({ queryKey: ["user"] });
+            
             router.push("/");
+            router.refresh(); // 라우터 갱신으로 Header 유저 상태 즉시 반영
         },
         onError: (error) => {
             console.error("로그인 실패:", error);

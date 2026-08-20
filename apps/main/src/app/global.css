@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@import "@affection/ui/styles.css";
+@import "@affection/ui/theme.css";
+
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";

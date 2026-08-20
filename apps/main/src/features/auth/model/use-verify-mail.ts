@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 export const useVerifyMail = () => {
     return useMutation({
         mutationFn: async (body: VerifyMailRequest): Promise<string> =>
-            api.post(`/api/auth/verify/email`, body),
+            api.postText(`/api/auth/email`, body),
         onError: (error) => {
             console.error("인증 실패:", error);
         },

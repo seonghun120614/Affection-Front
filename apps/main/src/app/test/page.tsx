@@ -1,7 +1,7 @@
 "use client";
 
-import VerifyMailForm from "@/features/auth/ui/verify-mail-form";
 import { useState } from "react";
+import { LoginForm } from "@/features/auth/ui/login-form";
 
 // 세분화된 디바이스 타입 정의
 type DeviceType = 
@@ -13,7 +13,6 @@ type DeviceType =
     | 'desktop';
 
 export default function TestPage() {
-    const [email, setEmail] = useState("");
     const [device, setDevice] = useState<DeviceType>('mobile');
 
     // 각 기기별 실제 뷰포트 비율 및 해상도 매핑
@@ -56,16 +55,9 @@ export default function TestPage() {
             </div>
 
             {/* main 디바이스 프레임 */}
-            <main className={`relative flex flex-col justify-center border-[12px] border-gray-800 rounded-[32px] shadow-2xl bg-white transition-all duration-500 ease-in-out overflow-y-auto ${deviceStyles[device]}`}>
+            <main className={`relative flex flex-col justify-center border-12 border-gray-800 rounded-4xl shadow-2xl bg-white transition-all duration-500 ease-in-out overflow-y-auto ${deviceStyles[device]}`}>
                 <div className="w-full max-w-sm mx-auto">
-                    <h1 className="text-xl font-bold mb-6 text-center">이메일 폼 테스트</h1>
-                    <VerifyMailForm
-                        email={email}
-                        onChangeEmail={setEmail}
-                        isVerifiedEmail={false}
-                        onVerifyMail={() => alert("인증 요청!")}
-                        isLoading={false}
-                    />
+                    <LoginForm/>
                 </div>
             </main>
         </div>

@@ -1,29 +1,38 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { SignupForm } from "../../pages/signup-form";
+"use client";
 
-export const metadata: Metadata = {
-    title: "회원가입",
-    description: "Affection 계정을 만들고 첫 번째 방을 열어보세요.",
-};
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { SignupPage } from "@/pages/SignupPage";
+import { SignupContractPage } from "@/pages/SignupContract";
 
-export default function SignupPage() {
+export default function Signup() {
+    const [isAgreed, setIsAgreed] = useState(false);
+
     return (
-        <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col justify-center px-6 py-16">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
-                회원가입
-            </h1>
-            <p className="mt-2 text-sm text-zinc-600">
-                이미 계정이 있으신가요?{" "}
-                <Link
-                    href="/login"
-                    className="font-medium text-indigo-600 hover:text-indigo-700"
+        <AnimatePresence mode="wait">
+            {!isAgreed ? (
+                <motion.div
+                    key="contract"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    className="w-full"
                 >
-                    로그인
-                </Link>
-            </p>
-
-            <SignupForm />
-        </main>
+                    <SignupContractPage onAgree={() => setIsAgreed(true)} />
+                </motion.div>
+            ) : (
+                <motion.div
+                    key="signup-form"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    className="w-full"
+                >
+                    <SignupPage />
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 }

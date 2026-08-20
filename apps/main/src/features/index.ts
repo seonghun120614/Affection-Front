@@ -1,4 +1,5 @@
 export { useLogin } from "./auth/model/use-login";
+export { useLogout } from "./auth/model/use-logout";
 export { useRegister } from "./auth/model/use-register";
 export { useUserExists } from "./auth/model/use-user-exists";
 export { useSendMail } from "./mail/model/use-send-mail";
@@ -7,3 +8,5 @@ export { useVerifyMail } from "./auth/model/use-verify-mail";
 export { useVerifySms } from "./auth/model/use-verify-sms";
 
 export { UserExistsForm } from "./auth/ui/user-exists-form";
+export { VerifyMailForm } from "./auth/ui/verify-mail-form";
+export { VerifySmsForm } from "./auth/ui/verify-sms-form";

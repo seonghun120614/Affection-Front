@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
                 destination: "http://localhost:8080/api/:path*",
             },
         ];
-    },
+    }
 };
 
 export default nextConfig;
