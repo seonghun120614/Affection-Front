@@ -1,4 +1,4 @@
-import { Docs } from "@/shared/docs";
+import { Docs } from "@affection/ui";
 
 export function TermsPage() {
     return (

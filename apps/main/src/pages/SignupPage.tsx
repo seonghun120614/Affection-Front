@@ -7,6 +7,7 @@ import {
     VerifySmsForm,
     useRegister,
 } from "@/features";
+import { useRouter } from "next/navigation";
 import { Input, Button } from "@affection/ui";
 import { motion } from "framer-motion";
 

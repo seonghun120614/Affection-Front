@@ -3,12 +3,17 @@
 import { useState } from "react";
 import { Input, Button } from "@affection/ui";
 import { useLogin } from "../model/use-login";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
+    const router = useRouter();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const { mutate: login, isPending, isError } = useLogin();
+    const { mutate: login, isPending, isError } = useLogin((path: string) => {
+        router.push(path);
+        router.refresh();
+    });
 
     const isFormValid = username.trim().length > 0 && password.length > 0;
 

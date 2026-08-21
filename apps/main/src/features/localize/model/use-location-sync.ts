@@ -1,7 +1,7 @@
-// src/lib/use-location-sync.ts
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useGeolocation } from "./use-geolocation";
 
 const LOCATION_SYNC_INTERVAL_MS = 60_000;
@@ -11,6 +11,7 @@ interface UpdateLocalRequest {
     latitude: number;
 }
 
+// 1. 위치 전송 API 함수
 async function sendLocation({
     longitude,
     latitude,
@@ -30,32 +31,38 @@ async function sendLocation({
 export function useLocationSync(enabled: boolean) {
     const { position, loading, error } = useGeolocation();
 
-    // interval 콜백이 최신 position을 참조하도록 ref로 관리 (stale closure 방지)
+    // 2. TanStack Query Mutation 정의
+    const { mutate: syncLocation, isPending: isSyncing } = useMutation({
+        mutationFn: sendLocation,
+        onError: (err) => {
+            console.error("Location sync error:", err);
+        },
+    });
+
+    // Stale Closure 방지용 Ref
     const positionRef = useRef(position);
     useEffect(() => {
         positionRef.current = position;
     }, [position]);
 
+    // 3. 주기적 동기화 트리거
     useEffect(() => {
         if (!enabled) return;
 
-        const syncOnce = async () => {
-            // 아직 위치를 못 받았거나 에러 상태면 스킵 (SEOUL 폴백값이 잘못 전송되는 것 방지)
+        const handleSync = () => {
+            // 위치 정보를 아직 얻지 못했거나 지오로케이션 에러 시 스킵
             if (loading || error) return;
 
             const [latitude, longitude] = positionRef.current;
-
-            try {
-                await sendLocation({ longitude, latitude });
-            } catch (err) {
-                console.error("Location sync error:", err);
-            }
+            syncLocation({ longitude, latitude });
         };
 
-        // 최초 위치 확보 시 1회 즉시 전송 + 이후 60초 주기
-        syncOnce();
-        const intervalId = setInterval(syncOnce, LOCATION_SYNC_INTERVAL_MS);
+        // 최초 실행 + 주기적 전송
+        handleSync();
+        const intervalId = setInterval(handleSync, LOCATION_SYNC_INTERVAL_MS);
 
         return () => clearInterval(intervalId);
-    }, [enabled, loading, error]);
+    }, [enabled, loading, error, syncLocation]);
+
+    return { isSyncing };
 }

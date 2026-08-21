@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useModalStore } from "@affection/hooks";
 import { usePathname, useRouter } from "next/navigation";
 import { useLogout } from "@/features";
 
@@ -15,13 +16,12 @@ export interface HeaderNavProps {
 const MENU_ITEM_CLS =
     "rounded-xl px-3.5 py-2 text-sm font-medium text-stone-600 transition-all hover:bg-stone-100 hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-stone-300 focus-visible:outline-none";
 
-function HeaderNav({
-    username,
-    openBorrowModal,
-    openFindingModal,
-}: HeaderNavProps) {
+function HeaderNav({ username }: HeaderNavProps) {
     const router = useRouter();
-    const { mutate: logout } = useLogout();
+    const openFindingModal = useModalStore((state) => state.openModal);
+    const { mutate: logout } = useLogout((path: string) => {
+        router.push(path);
+    });
 
     const handleLogout = () => {
         // useLogout 훅을 통한 백엔드 세션/토큰 정리 후 클라이언트 스토리지 비우기
@@ -46,14 +46,14 @@ function HeaderNav({
             {username ? (
                 /* 로그인 후: 모달 버튼 및 유저 프로필/로그아웃 */
                 <>
-                    <button onClick={openBorrowModal} className={MENU_ITEM_CLS}>
+                    <button onClick={() => {}} className={MENU_ITEM_CLS}>
                         물품 대여하기
                     </button>
                     <button onClick={openFindingModal} className={MENU_ITEM_CLS}>
                         주인 찾기
                     </button>
                     
-                    <div className="mx-1 h-4 w-[1px] bg-stone-200" />
+                    <div className="mx-1 h-4 w-px bg-stone-200" />
 
                     <span className="px-1 text-sm font-semibold text-stone-900">
                         <span className="text-autumn-rust">{username}</span> 님

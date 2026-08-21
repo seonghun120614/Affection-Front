@@ -7,6 +7,8 @@ export { useSendSms } from "./sms/model/use-send-sms";
 export { useVerifyMail } from "./auth/model/use-verify-mail";
 export { useVerifySms } from "./auth/model/use-verify-sms";
 
-export { UserExistsForm } from "./auth/ui/user-exists-form";
-export { VerifyMailForm } from "./auth/ui/verify-mail-form";
-export { VerifySmsForm } from "./auth/ui/verify-sms-form";
+export { LoginForm } from "./auth/ui/LoginForm";
+export { UserExistsForm } from "./auth/ui/UserExistsForm";
+export { VerifyMailForm } from "./auth/ui/VerifyMailForm";
+export { VerifySmsForm } from "./auth/ui/VerifySmsForm";
+export { MapView } from "./localize/ui/MapView";

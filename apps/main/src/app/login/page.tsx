@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LoginForm } from "@/features/auth/ui/login-form"; // 프로젝트 파일 위치에 맞게 수정
+import { LoginForm } from "@/features"; // 프로젝트 파일 위치에 맞게 수정
 
 export default function LoginPage() {
     return (

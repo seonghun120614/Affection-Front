@@ -1,9 +1,7 @@
 import { api } from "@affection/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 
-export const useLogout = () => {
-    const router = useRouter();
+export const useLogout = (redirect: (path: string) => void) => {
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -13,7 +11,7 @@ export const useLogout = () => {
         onSuccess: () => {
             sessionStorage.removeItem("username");
             queryClient.invalidateQueries({ queryKey: ["user"] });
-            router.push("/");
+            redirect("/");
         },
         onError: (error) => {
             console.error("로그아웃 실패:", error);

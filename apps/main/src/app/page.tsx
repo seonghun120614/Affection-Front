@@ -38,7 +38,7 @@ export default function HomePage() {
             {/* 메인 컨텐츠 영역 */}
             <main className="flex flex-1 flex-col">
                 {/* Hero */}
-                <section className="border-b border-stone-200 bg-gradient-to-b from-stone-50/80 to-white px-6 py-24 sm:py-32">
+                <section className="border-b border-stone-200 bg-linear-to-b from-stone-50/80 to-white px-6 py-24 sm:py-32">
                     <div className="mx-auto max-w-3xl text-center">
                         <p className="text-xs font-semibold tracking-widest text-autumn-rust uppercase">
                             Affection

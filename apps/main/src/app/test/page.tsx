@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LoginForm } from "@/features/auth/ui/login-form";
+import { LoginForm } from "@/features";
 
 // 세분화된 디바이스 타입 정의
 type DeviceType = 
